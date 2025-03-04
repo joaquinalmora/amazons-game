@@ -76,9 +76,31 @@ public class COSC322Test extends GamePlayer {
 
 	@Override
 	public void onLogin() {
-		userName = gameClient.getUserName();
+		/*userName = gameClient.getUserName();
 		if (gamegui != null) {
 			gamegui.setRoomInformation(gameClient.getRoomList());
+		}*/
+		// Get the username from the client
+		userName = gameClient.getUserName();
+
+		// Retrieve the list of available rooms
+		List<Room> rooms = gameClient.getRoomList();
+	
+		// Update the GUI with the available room list
+		if (gamegui != null) {
+			gamegui.setRoomInformation(rooms);
+		}
+	
+		// Check if there is at least one room available
+		if (!rooms.isEmpty()) {
+			// Get the name of the first room in the list
+			String roomName = rooms.get(0).getName();
+			System.out.println("Joining room: " + roomName);
+			
+			// Join the room using the GameClient API
+			gameClient.joinRoom(roomName);
+		} else {
+			System.out.println("No available room found to join!");
 		}
 	}
 
@@ -124,8 +146,14 @@ public class COSC322Test extends GamePlayer {
 				MakeMove();
 			}
 			break;
+		case "cosc322.game-state.userlost":
+            // Handle the user lost message
+            System.out.println("Received game-state.userlost. Game over.");
+            // Optionally update the GUI or trigger cleanup logic here.
+            break;
 			
 		default:
+			System.out.println("Unhandled message type: " + messageType);
 			assert (false);
 			break;
 		}
@@ -202,6 +230,7 @@ public class COSC322Test extends GamePlayer {
 		state[0][9][6] = this.blackQueen;
 		
 		state[1] = AmazonsUtility.getMobilityMap(state[0]);
+		AmazonsUtility.printBoard(state[0]);
 		
 		this.mc = new MonteCarlo(new TreeNode(state, this.blackQueen), 29000, 1.4);
 	}
