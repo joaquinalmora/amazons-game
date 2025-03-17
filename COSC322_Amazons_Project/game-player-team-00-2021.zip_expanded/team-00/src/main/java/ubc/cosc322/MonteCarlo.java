@@ -1,168 +1,115 @@
 package ubc.cosc322;
 
-import java.util.ArrayList;
-
-public class MonteCarlo {	
-	long allowedTimeMs;
-	TreeNode root;
-	double explorationCoefficient;
-	
-//	public static void main(String[] args) {
-//		int[][] defaultBoard = new int[][] {
-//			{0,0,0,2,0,0,2,0,0,0},
-//			{0,0,0,0,0,0,0,0,0,0},
-//			{0,0,0,0,0,0,0,0,0,0},
-//			{2,0,0,0,0,0,0,0,0,2},
-//			{0,0,0,0,0,0,0,0,0,0},
-//			{0,0,0,0,0,0,0,0,0,0},
-//			{1,0,0,0,0,0,0,0,0,1},
-//			{0,0,0,0,0,0,0,0,0,0},
-//			{0,0,0,0,0,0,0,0,0,0},
-//			{0,0,0,1,0,0,1,0,0,0},
-//		};
-//		int[][] mobilityMap = AmazonsUtility.getMobilityMap(defaultBoard);
-//		int[][][] state = new int[][][] {defaultBoard, mobilityMap};
-//		int currentPlayer = 1;
-//		
-//		TreeNode currentState = new TreeNode(state, currentPlayer);
-//		MonteCarlo mc = null;
-//		while(!currentState.isTerminal()) {
-//			
-//			System.out.println("Current heuristic value: " + HeuristicEvaluator.getHeuristicEval(currentState.boardState, currentState.getColor()));
-//			//System.out.println("Current heuristic value 2: " + HeuristicEvaluator.getHeuristicEval2(currentState.boardState, currentState.getColor()));
-//			//double w = HeuristicEvaluator.queenMinDistance(currentState.boardState[0], currentState.getColor())[2];
-//			//System.out.println("Current w value: " + w);
-//			System.out.println(currentState.getColor() + " to move");
-//			currentState.printBoard();
-//			TreeNode.maxDepth = 0;
-//			mc = new MonteCarlo(currentState, 30000, 1.4);
-//			AmazonsAction action = mc.MCTS();
-//			state = AmazonsAction.applyAction(action, state);
-//			if(currentPlayer == 1) currentPlayer = 2;
-//			else currentPlayer = 1;
-//			currentState = new TreeNode(state, currentPlayer);
-//		}
-//		AmazonsUtility.printBoard(state[0]);
-//		System.out.println("Player " + (3-currentPlayer) + " wins!");
-//	}
-	
-	MonteCarlo(TreeNode root, long allowedTimeMs, double explorationCoefficient){
-		this.root = root;
-		this.allowedTimeMs = allowedTimeMs;
-		this.explorationCoefficient = explorationCoefficient;
-	}
-	
-	// performs an MCTS from the current root and returns the best action
-	public AmazonsAction MCTS() {
-		TreeNode.maxDepth = 0;
-		long currentTime = System.currentTimeMillis();
-		int iterations = 0;
-		for(long startTime = System.currentTimeMillis(); currentTime - startTime < allowedTimeMs; currentTime = System.currentTimeMillis()) {
-			TreeNode leaf = traverse(root);
-			double result;
-			if(leaf.isTerminal()) {
-				result = 1;
-			} else {
-				leaf = leaf.expandAtRandom();
-				result = heuristicRollout(leaf);
-			}
-			iterations++;
-			backpropogate(leaf, result);
-		}
-		System.out.println(iterations + " iterations were run");
-
-		// returns an action based on child with highest winrate
-		AmazonsAction bestAction = null;
-		double bestWinrate = -10000;
-		for (TreeNode t : root.children) {
-			double winrate = 0;
-			double Q = t.Q;
-			double N = t.N;
-			if (N != 0) {
-				winrate = Q / N;
-			}
-			if (winrate > bestWinrate) {
-				bestWinrate = winrate;
-				bestAction = t.action;
-			}
-		}
-		return bestAction;
-	}
-
-	public TreeNode traverse(TreeNode node) {
-		// if the node is not a leaf node, traverse to its best child
-		if (!node.hasUnexpandedChildren() && node.hasExpandedChildren()) {
-			// get the child with the highest UCB score
-			double maxUCB = -1; // all UCB values will be >=0
-			TreeNode bestChild = null;
-			for (TreeNode n : node.children) {
-				double currentUCB = n.getUCB(explorationCoefficient);
-				if (currentUCB > maxUCB) {
-					maxUCB = currentUCB;
-					bestChild = n;
-				}
-			}
-			// traverse recursively
-			return traverse(bestChild);
-		}
-		return node;
-	}
-	
-	//playerColor is the color of the player we desire to win, so the root node's color will be passed in
-	public int rollout(TreeNode start) {
-		TreeNode currentNode = new TreeNode(start); //copy start node
-		while(true) {	
-			if(currentNode.isTerminal()) { //if a node is terminal, the current color loses
-				if(currentNode.getColor() == start.getColor()) return 0;
-				else return 1;
-			}
-			
-			//expand that child and continue looping
-			currentNode = currentNode.expandAtRandom();
-		}
-	}
-	
-	public double heuristicRollout(TreeNode node) {
-		double heuristicResult = HeuristicEvaluator.getHeuristicEval(node.boardState, node.getColor());
-		double result = AmazonsUtility.sigmoid(heuristicResult);
-		
-		if(node.getColor() == 1) {
-			return 1 - result;
-		} else {
-			return result;
-		}
-	}
-	
-	public void backpropogate(TreeNode leaf, double result) {
-		leaf.N++; leaf.Q += result;
-		if(leaf.parent != null) {
-			backpropogate(leaf.parent, 1 - result);
-		}
-	}
-	
-	public void rootFromAction(AmazonsAction a) {
-		this.root.expand();
-		boolean found = false;
-		for(TreeNode n: root.children) {
-			if(n.action.isEqual(a)) {
-				root = n;
-				root.parent = null;
-				found = true;
-				break;
-			}
-		}
-		if(!found) {
-			//RECORD THE ILLEGAL MOVE STUFF
-			int newColor;
-			if(root.color == 2) {
-				newColor = 1;
-			} else {
-				newColor = 2;
-			}
-			int[][][] postCheatState = AmazonsAction.applyAction(a, root.boardState);
-			root = new TreeNode(postCheatState, newColor);
-		}
-
-	}
-	
+public class MonteCarlo {
+    //Time allowed for search in millisecond, the root node of the tree, and our exploration parameter
+    private long allowedTimeMs;
+    public TreeNode root;
+    private double explorationCoefficient;
+    
+    //initializes our MCTS engine with a starting state, search time, and exploration factor
+    public MonteCarlo(TreeNode root, long allowedTimeMs, double explorationCoefficient) {
+        this.root = root;
+        this.allowedTimeMs = allowedTimeMs;
+        this.explorationCoefficient = explorationCoefficient;
+    }
+    
+    // Run the Monte Carlo Tree Search and pick the best action from the current root
+    public AmazonsAction MCTS() {
+        TreeNode.maxDepth = 0;
+        long startTime = System.currentTimeMillis();
+        int iterations = 0;
+        
+        // Run our  simulations until the allowed time has passed
+        while (System.currentTimeMillis() - startTime < allowedTimeMs) {
+            TreeNode leaf = traverse(root);
+            double result;
+            if (leaf.isTerminal()) {
+                result = 1;  // terminal node reached; assign the win value
+            } else {
+                leaf = leaf.expandAtRandom();
+                result = heuristicRollout(leaf);
+            }
+            iterations++;
+            backpropagate(leaf, result);
+        }
+        System.out.println(iterations + " iterations were run");
+        
+        //  P ick the action that has the highest win rate among the root's children
+        AmazonsAction bestAction = null;
+        double bestWinrate = -10000;
+        for (TreeNode child : root.children) {
+            double winrate = (child.N != 0) ? child.Q / child.N : 0;
+            if (winrate > bestWinrate) {
+                bestWinrate = winrate;
+                bestAction = child.action;
+            }
+        }
+        return bestAction;
+    }
+    
+    // traverse the tree by always selecting the child with the highest UCB until a leaf is reached
+    public TreeNode traverse(TreeNode node) {
+        if (!node.hasUnexpandedChildren() && node.hasExpandedChildren()) {
+            double maxUCB = -1;  //   UCB scores are non-negative
+            TreeNode bestChild = null;
+            for (TreeNode child : node.children) {
+                double currentUCB = child.getUCB(explorationCoefficient);
+                if (currentUCB > maxUCB) {
+                    maxUCB = currentUCB;
+                    bestChild = child;
+                }
+            }
+            return traverse(bestChild);
+        }
+        return node;
+    }
+    
+    // 		A full rollout using random expansions until a terminal state is reached
+    //  0 if the starting player's color loses, 1 otherwise
+    public int rollout(TreeNode start) {
+        TreeNode currentNode = new TreeNode(start); // copy of the starting node
+        while (true) {
+            if (currentNode.isTerminal()) {
+                return (currentNode.getColor() == start.getColor()) ? 0 : 1;
+            }
+            currentNode = currentNode.expandAtRandom();
+        }
+    }
+    
+    //instead of a full rollout use a heuristic evaluation and a sigmoid to get a rollout value
+    public double heuristicRollout(TreeNode node) {
+        double heuristicResult = HeuristicEvaluator.getHeuristicEval(node.boardState, node.getColor());
+        double result = AmazonsUtility.sigmoid(heuristicResult);
+        // Flip the result depending on the player's color.
+        return (node.getColor() == 1) ? (1 - result) : result;
+    }
+    
+    // Propagate the simulation result up the tree, updating visit counts and cumulative scores
+    public void backpropagate(TreeNode node, double result) {
+        node.N++;
+        node.Q += result;
+        if (node.parent != null) {
+            backpropagate(node.parent, 1 - result);
+        }
+    }
+    
+    // update the root of the tree based on the action taken If no matching child is found, reconstruct the state
+    public void rootFromAction(AmazonsAction a) {
+        this.root.expand();
+        boolean found = false;
+        for (TreeNode child : root.children) {
+            if (child.action.isEqual(a)) {
+                root = child;
+                root.parent = null;
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            // In the case of an illegal move adjust the state manually
+            int newColor = (root.color == 2) ? 1 : 2;
+            int[][][] postCheatState = AmazonsAction.applyAction(a, root.boardState);
+            root = new TreeNode(postCheatState, newColor);
+        }
+    }
 }
