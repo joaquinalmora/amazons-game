@@ -185,7 +185,8 @@ public class COSC322Test extends GamePlayer {
             client.sendMoveMessage(aiQueenPosCurr, aiQueenPosNext, aiArrowPos);
             monteCarlo.rootFromAction(action);
         } else { // action is only null when you lose, as you have no actions available
-            System.out.println("You lose");
+            System.out.println("You lose.");
+			System.exit(0); // if you lose then disconnect from the game
             // TODO: is there a server message you send once the game is over?
         }
     }
@@ -203,6 +204,12 @@ public class COSC322Test extends GamePlayer {
         gui.updateGameState(currQueenPos, nextQueenPos, arrowPos);
         if (monteCarlo != null) {
             monteCarlo.rootFromAction(action);
+
+			//check to see if opponenet has no moves on their turn:
+			if(opponentHasNoMoves()){
+				System.out.println("You Win!");
+				System.exit(0); // if so you won, and disconnect from the game
+			}
         }
     }
 
@@ -229,4 +236,13 @@ public class COSC322Test extends GamePlayer {
 
         monteCarlo = new MonteCarlo(new TreeNode(state, BLACK_QUEEN), 29000, 1.4);
     }
+
+	private boolean opponentHasNoMoves() {
+		// The opponent's color is the one not equal to myQueen
+		int opponentColor = (myQueen == WHITE_QUEEN) ? BLACK_QUEEN : WHITE_QUEEN;
+		// Generate all possible actions for the opponent using the current board state.
+		ArrayList<AmazonsAction> opponentActions = AmazonsActionFactory.getActions(monteCarlo.root.boardState, opponentColor);
+		return opponentActions.isEmpty();
+	}
+	
 }
