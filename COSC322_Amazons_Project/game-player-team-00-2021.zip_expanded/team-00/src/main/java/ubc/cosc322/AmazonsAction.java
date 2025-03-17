@@ -1,150 +1,104 @@
 package ubc.cosc322;
+
 public class AmazonsAction {
-	public int queenSrcX;
-	public int queenSrcY;
-	public int queenDestX;
-	public int queenDestY;
-	public int arrowDestX;
-	public int arrowDestY;
-			
-	public AmazonsAction(int queenSrcX, int queenSrcY, int queenDestX, int queenDestY, int arrowDestX, int arrowDestY) {
-		this.queenSrcX = queenSrcX;
-		this.queenSrcY = queenSrcY;
-		this.queenDestX = queenDestX;
-		this.queenDestY = queenDestY;
-		this.arrowDestX = arrowDestX;
-		this.arrowDestY = arrowDestY;
-	}
-	
-	// takes in an action and board
-	// returns a new board state and new mobility map
-	public static int[][][] applyAction(AmazonsAction action, int[][][] state) {
-		int[][] board = state[0];
-		int[][] mobilityMap = state[1];
-		
-		int[][] updatedBoard = new int[10][10];
-		int[][] updatedMobilityMap = new int[10][10];
-		
-		for(int i = 0; i < 10; i++) {
-			for(int j = 0; j < 10; j++) {
-				updatedBoard[i][j] = board[i][j];
-				updatedMobilityMap[i][j] = mobilityMap[i][j];
-			}
-		}
-		
-		updatedBoard[action.queenDestY][action.queenDestX] = board[action.queenSrcY][action.queenSrcX];
-		updatedBoard[action.queenSrcY][action.queenSrcX] = 0;
-		updatedBoard[action.arrowDestY][action.arrowDestX] = 3;
-		
-		// update mobility where queen left
-		if(AmazonsUtility.isSpotValid(action.queenSrcY-1, action.queenSrcX)) {
-			updatedMobilityMap[action.queenSrcY-1][action.queenSrcX]++;
-		}
-		if(AmazonsUtility.isSpotValid(action.queenSrcY-1, action.queenSrcX-1)) {
-			updatedMobilityMap[action.queenSrcY-1][action.queenSrcX-1]++;
-		}
-		if(AmazonsUtility.isSpotValid(action.queenSrcY-1, action.queenSrcX+1)) {
-			updatedMobilityMap[action.queenSrcY-1][action.queenSrcX+1]++;
-		}
-		if(AmazonsUtility.isSpotValid(action.queenSrcY, action.queenSrcX-1)) {
-			updatedMobilityMap[action.queenSrcY][action.queenSrcX-1]++;
-		}
-		if(AmazonsUtility.isSpotValid(action.queenSrcY, action.queenSrcX+1)) {
-			updatedMobilityMap[action.queenSrcY][action.queenSrcX+1]++;
-		}
-		if(AmazonsUtility.isSpotValid(action.queenSrcY+1, action.queenSrcX)) {
-			updatedMobilityMap[action.queenSrcY+1][action.queenSrcX]++;
-		}
-		if(AmazonsUtility.isSpotValid(action.queenSrcY+1, action.queenSrcX-1)) {
-			updatedMobilityMap[action.queenSrcY+1][action.queenSrcX-1]++;
-		}
-		if(AmazonsUtility.isSpotValid(action.queenSrcY+1, action.queenSrcX+1)) {
-			updatedMobilityMap[action.queenSrcY+1][action.queenSrcX+1]++;
-		}
-		
-		// update mobility where queen went
-		if(AmazonsUtility.isSpotValid(action.queenDestY-1, action.queenDestX)) {
-			updatedMobilityMap[action.queenDestY-1][action.queenDestX]--;
-		}
-		if(AmazonsUtility.isSpotValid(action.queenDestY-1, action.queenDestX-1)) {
-			updatedMobilityMap[action.queenDestY-1][action.queenDestX-1]--;
-		}
-		if(AmazonsUtility.isSpotValid(action.queenDestY-1, action.queenDestX+1)) {
-			updatedMobilityMap[action.queenDestY-1][action.queenDestX+1]--;
-		}
-		if(AmazonsUtility.isSpotValid(action.queenDestY, action.queenDestX-1)) {
-			updatedMobilityMap[action.queenDestY][action.queenDestX-1]--;
-		}
-		if(AmazonsUtility.isSpotValid(action.queenDestY, action.queenDestX+1)) {
-			updatedMobilityMap[action.queenDestY][action.queenDestX+1]--;
-		}
-		if(AmazonsUtility.isSpotValid(action.queenDestY+1, action.queenDestX)) {
-			updatedMobilityMap[action.queenDestY+1][action.queenDestX]--;
-		}
-		if(AmazonsUtility.isSpotValid(action.queenDestY+1, action.queenDestX-1)) {
-			updatedMobilityMap[action.queenDestY+1][action.queenDestX-1]--;
-		}
-		if(AmazonsUtility.isSpotValid(action.queenDestY+1, action.queenDestX+1)) {
-			updatedMobilityMap[action.queenDestY+1][action.queenDestX+1]--;
-		}
-		
-		// update mobility where arrow went
-		if(AmazonsUtility.isSpotValid(action.arrowDestY-1, action.arrowDestX)) {
-			updatedMobilityMap[action.arrowDestY-1][action.arrowDestX]--;
-		}
-		if(AmazonsUtility.isSpotValid(action.arrowDestY-1, action.arrowDestX-1)) {
-			updatedMobilityMap[action.arrowDestY-1][action.arrowDestX-1]--;
-		}
-		if(AmazonsUtility.isSpotValid(action.arrowDestY-1, action.arrowDestX+1)) {
-			updatedMobilityMap[action.arrowDestY-1][action.arrowDestX+1]--;
-		}
-		if(AmazonsUtility.isSpotValid(action.arrowDestY, action.arrowDestX-1)) {
-			updatedMobilityMap[action.arrowDestY][action.arrowDestX-1]--;
-		}
-		if(AmazonsUtility.isSpotValid(action.arrowDestY, action.arrowDestX+1)) {
-			updatedMobilityMap[action.arrowDestY][action.arrowDestX+1]--;
-		}
-		if(AmazonsUtility.isSpotValid(action.arrowDestY+1, action.arrowDestX)) {
-			updatedMobilityMap[action.arrowDestY+1][action.arrowDestX]--;
-		}
-		if(AmazonsUtility.isSpotValid(action.arrowDestY+1, action.arrowDestX-1)) {
-			updatedMobilityMap[action.arrowDestY+1][action.arrowDestX-1]--;
-		}
-		if(AmazonsUtility.isSpotValid(action.arrowDestY+1, action.arrowDestX+1)) {
-			updatedMobilityMap[action.arrowDestY+1][action.arrowDestX+1]--;
-		}
-		
-		return new int[][][]{updatedBoard, updatedMobilityMap};
-	}
-	
-	// takes in a queen move and board state (no arrow move needed)
-	// returns a new board state
-	public static int[][] applyQueenMove(int queenSrcX, int queenSrcY, int queenDestX, int queenDestY, int[][][] state) {
-		int[][] board = state[0];
-		int[][] updatedBoard = new int[10][10];
-		
-		for(int i = 0; i < 10; i++) {
-			for(int j = 0; j < 10; j++) {
-				updatedBoard[i][j] = board[i][j];
-			}
-		}
-		
-		updatedBoard[queenDestY][queenDestX] = board[queenSrcY][queenSrcX];
-		updatedBoard[queenSrcY][queenSrcX] = 0;
-		
-		return updatedBoard;
-	}
-	
-	public boolean isEqual(AmazonsAction action) {
-		return (this.queenSrcX == action.queenSrcX
-				&& this.queenSrcY == action.queenSrcY
-				&& this.queenDestX == action.queenDestX
-				&& this.queenDestY == action.queenDestY
-				&& this.arrowDestX == action.arrowDestX
-				&& this.arrowDestY == action.arrowDestY);
-	}
-	
-	public void printMove() {
-		System.out.println(this.queenSrcX + ", " + this.queenSrcY + ", " + this.queenDestX + ", " + this.queenDestY + ", " + this.arrowDestX + ", " + this.arrowDestY);
-	}
+    //ields for the queen’s start and end positions and the arrow’s destination
+    public int queenSrcX, queenSrcY, queenDestX, queenDestY, arrowDestX, arrowDestY;
+
+    //constructor: initializes the move with given coordinates
+    public AmazonsAction(int queenSrcX, int queenSrcY, int queenDestX, int queenDestY, int arrowDestX, int arrowDestY) {
+        this.queenSrcX = queenSrcX;
+        this.queenSrcY = queenSrcY;
+        this.queenDestX = queenDestX;
+        this.queenDestY = queenDestY;
+        this.arrowDestX = arrowDestX;
+        this.arrowDestY = arrowDestY;
+    }
+
+    //pplies the complete move (queen move plus arrow shot) to the provided state,
+    // returns a new state: [updated board, updated mobility map]
+    public static int[][][] applyAction(AmazonsAction action, int[][][] state) {
+        int size = 10;
+        int[][] board = state[0];
+        int[][] mobilityMap = state[1];
+
+        // deep copies of the board and mobility map
+        int[][] newBoard = copy2DArray(board, size);
+        int[][] newMobility = copy2DArray(mobilityMap, size);
+
+        //	 Move the queen from its source to destination
+        newBoard[action.queenDestY][action.queenDestX] = board[action.queenSrcY][action.queenSrcX];
+        newBoard[action.queenSrcY][action.queenSrcX] = 0;
+        //Fire the arrow (represented by 3)
+        newBoard[action.arrowDestY][action.arrowDestX] = 3;
+
+        // Adjust mobility around affected spots
+        // Where the queen left, mobility goes up
+        updateMobility(newMobility, action.queenSrcY, action.queenSrcX, +1);
+        // Where the queen lands, mobility is reduced
+        updateMobility(newMobility, action.queenDestY, action.queenDestX, -1);
+        // and the same here, the arrow landing reduces mobility
+        updateMobility(newMobility, action.arrowDestY, action.arrowDestX, -1);
+
+        return new int[][][]{newBoard, newMobility};
+    }
+
+    // Apply only a queen move (ignoring arrow placement) and return a new board state
+    public static int[][] applyQueenMove(int queenSrcX, int queenSrcY, int queenDestX, int queenDestY, int[][][] state) {
+        int size = 10;
+        int[][] board = state[0];
+        int[][] newBoard = copy2DArray(board, size);
+        newBoard[queenDestY][queenDestX] = board[queenSrcY][queenSrcX];
+        newBoard[queenSrcY][queenSrcX] = 0;
+        return newBoard;
+    }
+
+    // Check if this action is equal to another action, all coordinates match
+    public boolean isEqual(AmazonsAction other) {
+        return (this.queenSrcX == other.queenSrcX &&
+                this.queenSrcY == other.queenSrcY &&
+                this.queenDestX == other.queenDestX &&
+                this.queenDestY == other.queenDestY &&
+                this.arrowDestX == other.arrowDestX &&
+                this.arrowDestY == other.arrowDestY);
+    }
+
+    public void printMove() {
+        System.out.println(queenSrcX + ", " + queenSrcY + " -> " +
+                           queenDestX + ", " + queenDestY + " ; arrow: " +
+                           arrowDestX + ", " + arrowDestY);
+    }
+
+    private static int[][] copy2DArray(int[][] array, int size) {
+        int[][] copy = new int[size][size];
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                copy[i][j] = array[i][j];
+            }
+        }
+        return copy;
+    }
+
+    // Directions for adjacent moves: up, up-left, left, down-left, down, down-right, right, up-right, same matrix for othermovement options
+    private static final int[][] DIRECTIONS = {
+        {-1,  0},
+        {-1, -1},
+        { 0, -1},
+        { 1, -1},
+        { 1,  0},
+        { 1,  1},
+        { 0,  1},
+        {-1,  1}
+    };
+
+    // Update the mobility map around a given cell by adding the specified delta
+    // check all 8 adjacent cells for possible moves
+    private static void updateMobility(int[][] mobilityMap, int centerY, int centerX, int delta) {
+        for (int[] d : DIRECTIONS) {
+            int newY = centerY + d[0];
+            int newX = centerX + d[1];
+            if (AmazonsUtility.isSpotValid(newY, newX)) {
+                mobilityMap[newY][newX] += delta;
+            }
+        }
+    }
 }
