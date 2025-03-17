@@ -1,5 +1,4 @@
 package ubc.cosc322;
-
 public class AmazonsAction {
 	public int queenSrcX;
 	public int queenSrcY;
