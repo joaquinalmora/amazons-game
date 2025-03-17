@@ -2,149 +2,143 @@ package ubc.cosc322;
 
 import java.util.ArrayList;
 
-public class TreeNode {	
-		public static int maxDepth = 0;
-		int depth;
-	
-		int color;
-		double Q;
-		int N;
-		int[][][] boardState;
-		AmazonsAction action; 	//action taken to reach node (used to return best action after MCTS)
-		TreeNode parent;
-		ArrayList<TreeNode> children;
-		ArrayList<AmazonsAction> possibleActions;
-		boolean expanded;
-		boolean actionsGenerated;
-		
-		//this constructor will be used to create the root node of the Monte-Carlo tree search 
-		//2 will be passed in for int N, because we can't have an unvisited root node without 
-		//creating an error with the UCB formula (we would divide by 0) and we don't want the second term of UCB to be 0
-		TreeNode(int[][][] boardState, int color){
-			this.children = new ArrayList<>();
-			this.action = null;
-			this.boardState = boardState;
-			this.parent = null;
-			this.color = color;
-			this.N = 0;
-			this.Q = 0;
-			this.expanded = false;
-			this.actionsGenerated = false;
-			this.depth = 0;
-		}
-		
-		//this constructor will be used for creating child nodes
-		TreeNode(int[][][] boardState, TreeNode parent, AmazonsAction action){
-			this.boardState = boardState;
-			this.parent = parent;
-			if(parent.color == 2) {
-				this.color = 1;
-			} else {
-				this.color = 2;
-			}
-			this.N = 0;
-			this.Q = 0;
-			this.expanded = false;
-			this.actionsGenerated = false;
-			this.children = new ArrayList<>();
-			this.action = action;
-			this.depth = parent.depth + 1;
-			if(this.depth > maxDepth) {
-				maxDepth = this.depth;
-				System.out.println("Depth: " + maxDepth);
-			}
-		}
-		
-		//this constructor to be used to make copies of nodes for roll out purposes
-		TreeNode(TreeNode copyNode) {
-			this.boardState = copyNode.boardState;
-			this.possibleActions = copyNode.possibleActions;
-			this.color = copyNode.color;
-			this.expanded = false;
-			this.actionsGenerated = copyNode.actionsGenerated;
-			this.children = new ArrayList<>();
-		}
-		
-		public double getUCB(double eC) {
-			//if this node hasn't been visited yet, N=0, and the second term of the UCB will be infinity, so we just return Double.MAX_VALUE to avoid errors
-			if(N==0) return 10000.0;
-			//otherwise return the UCB formula
-			return Q/N + eC*Math.sqrt(Math.log(parent.N)/N);
-		}
-		
-		//generate a child node given a subState of the current node's state and the action taken to get there
-		public TreeNode generateChild(AmazonsAction a) {
-			//int[][][] subState = AmazonsAction.applyAction(a, this.boardState);
-			//TreeNode child = new TreeNode(AmazonsAction.applyAction(a, this.boardState), this, a);
-			TreeNode child = new TreeNode(AmazonsAction.applyAction(a, this.boardState), this, a);
-			this.children.add(child);
-			return child;
-		}
-		
-		private void generateActions() {
-			this.possibleActions = AmazonsActionFactory.getActions(this.boardState, this.color);
-			this.actionsGenerated = true;
-		}
-		
-		//expands the current node
-		public void expand() {
-			if(!this.actionsGenerated) {
-				this.generateActions();
-			}
-			//create a list of all possible subStates from the current node's state
-			for(AmazonsAction a: this.possibleActions) {
-				this.children.add(new TreeNode(AmazonsAction.applyAction(a, this.boardState), this, a));
-				//generateChild(a);
-			}
-			this.possibleActions.clear();
-			this.expanded = true;
-		}
-		
-		//expands a specific action for roll out traversal
-		public TreeNode expandAtRandom() {
-			if(!this.actionsGenerated) {
-				this.generateActions();
-			}
-			int index = (int)(Math.random() * this.getNumPossibleActions());
-			AmazonsAction action = this.possibleActions.get(index);
-			this.possibleActions.remove(index);
-			if(this.possibleActions.isEmpty()) {
-				this.expanded = true;
-			}
-			return generateChild(action);
-		}
-		
-		//checks if a node is terminal
-		public boolean isTerminal() {
-			if(!this.actionsGenerated) {
-				this.generateActions();
-			}
-			return this.possibleActions.isEmpty() && this.children.isEmpty();
-		}
-		
-		public boolean hasUnexpandedChildren() {
-			if(!this.actionsGenerated) {
-				this.generateActions();
-			}
-			return !this.possibleActions.isEmpty();
-		}
-		
-		public boolean hasExpandedChildren() {
-			return !this.children.isEmpty();
-		}
-		
-		public int getColor() {
-			return this.color;
-		}
-		
-		public int getNumPossibleActions() {
-			if(!this.actionsGenerated) {
-				this.generateActions();
-			}
-			return this.possibleActions.size();
-		}
-		
-		public void printBoard() {
-			AmazonsUtility.printBoard(this.boardState[0]);
-		}
+public class TreeNode {
+    public static int maxDepth = 0;  //tracks maximum depth encountered in the tree
+    int depth;                // depth of this node in the tree
+    int color;                // current player's color at this node
+    double Q;                 // the Cumulative reward
+    int N;                    //  Visit count
+    int[][][] boardState;     // gameboard state (layer 0: board; layer 1: mobility map)
+    AmazonsAction action;     // 	Action taken to reach this node (null for the root)
+    TreeNode parent;          // Parent node (null for the root)
+    ArrayList<TreeNode> children;         //   Expanded child nodes.
+    ArrayList<AmazonsAction> possibleActions; //list of the  moves not yet expanded
+    boolean expanded;         // whether this node has been fully expanded
+    boolean actionsGenerated; //whether the list of Possible Actions has been Generated
+    
+    //		 Child Node: Create a new node by applying an action to a parent's state
+    public TreeNode(int[][][] boardState, TreeNode parent, AmazonsAction action) {
+        this.boardState = boardState;
+        this.parent = parent;
+        this.action = action;
+        // Flip the color: if parent's color is 2, child becomes 1; otherwise 2.
+        this.color = (parent.color == 2) ? 1 : 2;
+        this.children = new ArrayList<>();
+        this.expanded = false;
+        this.actionsGenerated = false;
+        this.depth = parent.depth + 1;
+        this.N = 0;
+        this.Q = 0;
+        if (this.depth > maxDepth) {
+            maxDepth = this.depth;
+            System.out.println("Depth: " + maxDepth);
+        }
+    }
+    
+    //		 Root Node: Initialize the tree with an initial board state and starting color
+    public TreeNode(int[][][] boardState, int color){
+        this.boardState = boardState;
+        this.color = color;
+        this.parent = null;
+        this.action = null;
+        this.children = new ArrayList<>();
+        this.expanded = false;
+        this.actionsGenerated = false;
+        this.depth = 0;
+        this.N = 0;
+        this.Q = 0;
+    }
+    
+    // 		Copy Constructor: For rollouts, createa a shallow copy of actions and state
+    public TreeNode(TreeNode copyNode) {
+        this.boardState = copyNode.boardState;
+        this.possibleActions = copyNode.possibleActions;
+        this.color = copyNode.color;
+        this.expanded = false;
+        this.actionsGenerated = copyNode.actionsGenerated;
+        this.children = new ArrayList<>();
+    }
+    
+    // check if this node has no further moves
+    public boolean isTerminal() {
+        if (!this.actionsGenerated) {
+            generateActions();
+        }
+        return this.possibleActions.isEmpty() && this.children.isEmpty();
+    }
+    
+    // true if still moves to expand.
+    public boolean hasUnexpandedChildren() {
+        if (!this.actionsGenerated) {
+            generateActions();
+        }
+        return !this.possibleActions.isEmpty();
+    }
+    
+    // true if this node already has at least one child
+    public boolean hasExpandedChildren() {
+        return !this.children.isEmpty();
+    }
+    
+    //return the current player's color at this node
+    public int getColor() {
+        return this.color;
+    }
+    
+    // Get tjhe of count the moves not yet expanded
+    public int getNumPossibleActions(){
+        if (!this.actionsGenerated) {
+            generateActions();
+        }
+        return this.possibleActions.size();
+    }
+    
+    //  generate the list of all possible moves from this board state
+    private void generateActions(){
+        this.possibleActions = AmazonsActionFactory.getActions(this.boardState, this.color);
+        this.actionsGenerated = true;
+    }
+    
+    // Create a new child node using the provided action
+    public TreeNode generateChild(AmazonsAction action) {
+        TreeNode child = new TreeNode(AmazonsAction.applyAction(action, this.boardState), this, action);
+        this.children.add(child);
+        return child;
+    }
+    
+    // expand this node by generating children for every possible move
+    public void expand() {
+        if (!this.actionsGenerated){
+            generateActions();
+        }
+        for (AmazonsAction a : this.possibleActions) {
+            this.children.add(new TreeNode(AmazonsAction.applyAction(a, this.boardState), this, a));
+        }
+        this.possibleActions.clear();
+        this.expanded = true;
+    }
+    
+    // randomly pick an action to expand, useful for rollout paths
+    public TreeNode expandAtRandom(){
+        if (!this.actionsGenerated) {
+            generateActions();
+        }
+        int index = (int) (Math.random() * getNumPossibleActions());
+        AmazonsAction action = this.possibleActions.get(index);
+        this.possibleActions.remove(index);
+        if (this.possibleActions.isEmpty()) {
+            this.expanded = true;}
+        return generateChild(action);
+    }
+    
+    // compute the UCB value to balance exploration and exploitation,
+    // unvisited nodes return a high constant to force exploration.
+    public double getUCB(double explorationParam) {
+        if (N == 0) return 10000.0;
+        return (Q / N) + explorationParam * Math.sqrt(Math.log(parent.N) / N);
+    }
+
+    public void printBoard() {
+        AmazonsUtility.printBoard(this.boardState[0]);
+    }
 }
