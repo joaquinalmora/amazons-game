@@ -5,25 +5,13 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 public class AmazonsActionFactory {
-    // 8possible movement directions row delta, column delta
-    private static final int[][] DIRECTIONS = {
-        {-1,  0},  // up
-        {-1, -1},  // up-left
-        { 0, -1},  // left
-        { 1, -1},  // down-left
-        { 1,  0},  // down
-        { 1,  1},  // downright
-        { 0,  1},  // right
-        {-1,  1}   // up-right
-    };
-
     // returns all possible moves (queen move + arrow shot) for the specified color given the board state
     public static ArrayList<AmazonsAction> getActions(int[][][] state, int color) {
         int size = 10;
         int[][] board = state[0];
         ArrayList<AmazonsAction> allActions = new ArrayList<>();
 
-        //collect queen positions for the specified color
+        // collect queen positions for the specified color
         Queue<int[]> queenPositions = new LinkedList<>();
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
@@ -33,13 +21,13 @@ public class AmazonsActionFactory {
             }
         }
 
-        //for every queen, try moving in all eight directions
+        // for every queen, try moving in all eight directions
         while (!queenPositions.isEmpty()) {
             int[] queenPos = queenPositions.poll();
             int queenSrcY = queenPos[0];
             int queenSrcX = queenPos[1];
 
-            for (int[] dir : DIRECTIONS) {
+            for (int[] dir : AmazonsUtility.DIRECTIONS) {
                 //move step by step in the current direction
                 for (int d = 1; d < size; d++) {
                     int queenDestY = queenSrcY + d * dir[0];
@@ -56,15 +44,15 @@ public class AmazonsActionFactory {
         return allActions;
     }
 
-    //given a queen move (from queenSrc to queenDest), returns all arrow moves possible
+    // given a queen move (from queenSrc to queenDest), returns all arrow moves possible
     private static ArrayList<AmazonsAction> getArrowMoves(int queenSrcX, int queenSrcY, int queenDestX, int queenDestY, int[][][] state) {
         int size = 10;
         ArrayList<AmazonsAction> arrowMoves = new ArrayList<>();
-        //get board state after moving the queen
+        // get board state after moving the queen
         int[][] boardAfterQueen = AmazonsAction.applyQueenMove(queenSrcX, queenSrcY, queenDestX, queenDestY, state);
 
-        //try shooting an arrow in every direction from the queen's new position to see best move
-        for (int[] dir : DIRECTIONS) {
+        // try shooting an arrow in every direction from the queen's new position to see best move
+        for (int[] dir : AmazonsUtility.DIRECTIONS) {
             for (int d = 1; d < size; d++) {
                 int arrowDestY = queenDestY + d * dir[0];
                 int arrowDestX = queenDestX + d * dir[1];

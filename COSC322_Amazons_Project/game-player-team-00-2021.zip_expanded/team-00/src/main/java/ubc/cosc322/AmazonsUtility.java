@@ -3,7 +3,7 @@ package ubc.cosc322;
 public class AmazonsUtility {
 
     // helper array of 8 direction offsets: up, up-left, left, down-left, down, down-right, right,up-right
-    private static final int[][] DIRECTIONS = {
+    public static final int[][] DIRECTIONS = {
         {-1,  0},  // up
         {-1, -1},  // up-left
         { 0, -1},  // left

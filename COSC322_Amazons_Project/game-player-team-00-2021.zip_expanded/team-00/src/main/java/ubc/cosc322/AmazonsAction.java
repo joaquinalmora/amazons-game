@@ -1,10 +1,10 @@
 package ubc.cosc322;
 
 public class AmazonsAction {
-    //ields for the queen’s start and end positions and the arrow’s destination
+    // yields for the queen’s start and end positions and the arrow’s destination
     public int queenSrcX, queenSrcY, queenDestX, queenDestY, arrowDestX, arrowDestY;
 
-    //constructor: initializes the move with given coordinates
+    // constructor: initializes the move with given coordinates
     public AmazonsAction(int queenSrcX, int queenSrcY, int queenDestX, int queenDestY, int arrowDestX, int arrowDestY) {
         this.queenSrcX = queenSrcX;
         this.queenSrcY = queenSrcY;
@@ -14,7 +14,7 @@ public class AmazonsAction {
         this.arrowDestY = arrowDestY;
     }
 
-    //pplies the complete move (queen move plus arrow shot) to the provided state,
+    // applies the complete move (queen move plus arrow shot) to the provided state,
     // returns a new state: [updated board, updated mobility map]
     public static int[][][] applyAction(AmazonsAction action, int[][][] state) {
         int size = 10;
@@ -78,22 +78,10 @@ public class AmazonsAction {
         return copy;
     }
 
-    // Directions for adjacent moves: up, up-left, left, down-left, down, down-right, right, up-right, same matrix for othermovement options
-    private static final int[][] DIRECTIONS = {
-        {-1,  0},
-        {-1, -1},
-        { 0, -1},
-        { 1, -1},
-        { 1,  0},
-        { 1,  1},
-        { 0,  1},
-        {-1,  1}
-    };
-
     // Update the mobility map around a given cell by adding the specified delta
     // check all 8 adjacent cells for possible moves
     private static void updateMobility(int[][] mobilityMap, int centerY, int centerX, int delta) {
-        for (int[] d : DIRECTIONS) {
+        for (int[] d : AmazonsUtility.DIRECTIONS) {
             int newY = centerY + d[0];
             int newX = centerX + d[1];
             if (AmazonsUtility.isSpotValid(newY, newX)) {

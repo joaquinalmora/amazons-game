@@ -1,12 +1,12 @@
 package ubc.cosc322;
 
 public class MonteCarlo {
-    //Time allowed for search in millisecond, the root node of the tree, and our exploration parameter
+    // Time allowed for search in millisecond, the root node of the tree, and our exploration parameter
     private long allowedTimeMs;
     public TreeNode root;
     private double explorationCoefficient;
     
-    //initializes our MCTS engine with a starting state, search time, and exploration factor
+    // initializes our MCTS engine with a starting state, search time, and exploration factor
     public MonteCarlo(TreeNode root, long allowedTimeMs, double explorationCoefficient) {
         this.root = root;
         this.allowedTimeMs = allowedTimeMs;
@@ -34,7 +34,7 @@ public class MonteCarlo {
         }
         System.out.println(iterations + " iterations were run");
         
-        //  P ick the action that has the highest win rate among the root's children
+        //  Pick the action that has the highest win rate among the root's children
         AmazonsAction bestAction = null;
         double bestWinrate = -10000;
         for (TreeNode child : root.children) {
@@ -76,7 +76,7 @@ public class MonteCarlo {
         }
     }
     
-    //instead of a full rollout use a heuristic evaluation and a sigmoid to get a rollout value
+    // instead of a full rollout use a heuristic evaluation and a sigmoid to get a rollout value
     public double heuristicRollout(TreeNode node) {
         double heuristicResult = HeuristicEvaluator.getHeuristicEval(node.boardState, node.getColor());
         double result = AmazonsUtility.sigmoid(heuristicResult);

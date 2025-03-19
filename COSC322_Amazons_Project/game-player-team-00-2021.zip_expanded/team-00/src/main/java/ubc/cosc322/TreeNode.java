@@ -3,7 +3,7 @@ package ubc.cosc322;
 import java.util.ArrayList;
 
 public class TreeNode {
-    public static int maxDepth = 0;  //tracks maximum depth encountered in the tree
+    public static int maxDepth = 0;  // tracks maximum depth encountered in the tree
     int depth;                // depth of this node in the tree
     int color;                // current player's color at this node
     double Q;                 // the Cumulative reward
@@ -16,7 +16,7 @@ public class TreeNode {
     boolean expanded;         // whether this node has been fully expanded
     boolean actionsGenerated; //whether the list of Possible Actions has been Generated
     
-    //		 Child Node: Create a new node by applying an action to a parent's state
+    //	Child Node: Create a new node by applying an action to a parent's state
     public TreeNode(int[][][] boardState, TreeNode parent, AmazonsAction action) {
         this.boardState = boardState;
         this.parent = parent;
@@ -35,7 +35,7 @@ public class TreeNode {
         }
     }
     
-    //		 Root Node: Initialize the tree with an initial board state and starting color
+    //	Root Node: Initialize the tree with an initial board state and starting color
     public TreeNode(int[][][] boardState, int color){
         this.boardState = boardState;
         this.color = color;
@@ -49,7 +49,7 @@ public class TreeNode {
         this.Q = 0;
     }
     
-    // 		Copy Constructor: For rollouts, createa a shallow copy of actions and state
+    // 	Copy Constructor: For rollouts, create a a shallow copy of actions and state
     public TreeNode(TreeNode copyNode) {
         this.boardState = copyNode.boardState;
         this.possibleActions = copyNode.possibleActions;
@@ -85,7 +85,7 @@ public class TreeNode {
         return this.color;
     }
     
-    // Get tjhe of count the moves not yet expanded
+    // Get the of count the moves not yet expanded
     public int getNumPossibleActions(){
         if (!this.actionsGenerated) {
             generateActions();
