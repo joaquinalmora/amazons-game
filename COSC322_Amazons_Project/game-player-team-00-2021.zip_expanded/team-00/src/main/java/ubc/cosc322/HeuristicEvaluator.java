@@ -17,18 +17,15 @@ public class HeuristicEvaluator {
         {1, 0}, {1, 1}, {0, 1}, {-1, 1}
     };
 
-    /**
-     * Main heuristic evaluation function.
-     * @param state The game state: state[0] is the board, state[1] is the mobility map.
-     * @param playerTurn The current player's turn (1 for white, 2 for black).
-     * @return A double representing the heuristic evaluation (positive: white advantage, negative: black advantage).
-     */
+    
+     // Main heuristic evaluation function.
     public static double getHeuristicEval(int[][][] state, int playerTurn) {
+        // The game state: state[0] is the board, state[1] is the mobility map.
         int[][] board = state[0];
         int[][] mobilityMap = state[1];
 
         // Get metrics based on queen distances
-        double[] queenMetrics = calculateDistanceMetrics(board, playerTurn, true);
+        double[] queenMetrics = calculateDistanceMetrics(board, playerTurn, true); The current player's turn (1 for white, 2 for black).
         double t1 = queenMetrics[0];
         double c1 = queenMetrics[1];
         double diffWeight = queenMetrics[2];
@@ -48,7 +45,7 @@ public class HeuristicEvaluator {
         // Combine different evaluation metrics
         double territoryEval = f1(diffWeight) * t1 + f2(diffWeight) * c1
                              + f3(diffWeight) * t2 + f4(diffWeight) * c2;
-        return territoryEval + mobilityEval;
+        return territoryEval + mobilityEval; // A double representing the heuristic evaluation (positive: white advantage, negative: black advantage).
     }
 
     // Weighting functions for evaluation – adjust contribution based on diffWeight
@@ -60,13 +57,7 @@ public class HeuristicEvaluator {
         return w * Math.pow(1.2, -mobility) / 45.0;
     }
 
-    /**
-     * Calculates distance-based metrics for queens or kings.
-     * @param board The game board.
-     * @param playerTurn The current player's turn.
-     * @param isQueen True if calculating for queens, false for kings.
-     * @return An array with [score, controlScore, diffWeight].
-     */
+
     private static double[] calculateDistanceMetrics(int[][] board, int playerTurn, boolean isQueen) {
         int[][] whiteDistances = initializeDistances();
         int[][] blackDistances = initializeDistances();
@@ -93,8 +84,7 @@ public class HeuristicEvaluator {
         return new double[]{score, 2.0 * controlScore, diffWeight};
     }
 
-    /**
-     * Initializes a distance array with maximum values.
+     // Initializes a distance array with maximum values.
      * @return A 10x10 array filled with Integer.MAX_VALUE.
      */
     private static int[][] initializeDistances() {
