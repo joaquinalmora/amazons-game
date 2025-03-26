@@ -20,7 +20,7 @@
         },
         {
             "type": "java",
-            "name": "COSC322Test",
+            "name": "COSC322Test2",
             "request": "launch",
             "mainClass": "ubc.cosc322.COSC322Test",
             "projectName": "team-00",
