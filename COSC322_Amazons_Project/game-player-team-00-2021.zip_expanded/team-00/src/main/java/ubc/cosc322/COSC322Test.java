@@ -234,7 +234,7 @@ public class COSC322Test extends GamePlayer {
         state[1] = AmazonsUtility.getMobilityMap(state[0]);
         AmazonsUtility.printBoard(state[0]);
 
-        monteCarlo = new MonteCarlo(new TreeNode(state, BLACK_QUEEN), 2900, 1.4);
+        monteCarlo = new MonteCarlo(new TreeNode(state, BLACK_QUEEN), 5000, 1.4);
     }
 
 	private boolean opponentHasNoMoves() {
