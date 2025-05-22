@@ -1,6 +1,7 @@
 # COSC322 Amazons Project
 
 This project implements the board game *Amazons* using a combination of Monte Carlo Tree Search (MCTS) and heuristic evaluation to decide moves. Two players, White and Black, take turns moving one of their queens and then firing an arrow that permanently blocks a square on the board. The game ends when the active player has no legal moves, at which point that player loses and the opponent wins.
+
 Our team completed the tournament with an undefeated record and earned a certificate of recognition for our performance.
 
 ---
@@ -18,6 +19,7 @@ Our team completed the tournament with an undefeated record and earned a certifi
 7. [Win/Loss Detection and Termination](#winloss-detection-and-termination)
 8. [Running the Project](#running-the-project)
 9. [Future Enhancements](#future-enhancements)
+10. [Certificate](#certificate)
 
 ---
 
