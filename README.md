@@ -188,3 +188,10 @@ The project uses a GUI (based on the provided `BaseGameGUI` class) to:
 
 2. **Run the Main Class:**  
    Launch `COSC322Test` with the appropriate command-line arguments for username and password. For example:
+
+## Future Enhancements
+Use parallel computing to speed up decision-making
+
+
+## Certificate   
+![Certificate](certificate.png)
